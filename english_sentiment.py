@@ -1,18 +1,16 @@
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
-
+from scipy.special import softmax
 
 model = AutoModelForSequenceClassification.from_pretrained(
-    "C:/Users/EmilJohansson/PycharmProjects/Rating_API/model/cardiffnlp/twitter-roberta-base-sentiment-latest")
+    "twitter-roberta-base-sentiment-latest_model")
 tokenizer = AutoTokenizer.from_pretrained(
-    "C:/Users/EmilJohansson/PycharmProjects/Rating_API/model/cardiffnlp/twitter-roberta-base-sentiment-latest")
-
-# model med 1-3 rating: cardiffnlp/twitter-roberta-base-sentiment-latest
-# model med 1-5 rating: nlptown/bert-base-multilingual-uncased-sentiment
+    "twitter-roberta-base-sentiment-latest_tokenizer")
 
 async def review_rating(input):
     tokens = tokenizer.encode(input, return_tensors="pt")
     result = model(tokens)
     output_np = result.logits[0].detach().cpu().numpy()
+    output = softmax(output_np)
 
-    return output_np
+    return output
 
