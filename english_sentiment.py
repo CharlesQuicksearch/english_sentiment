@@ -1,12 +1,15 @@
+import json
+
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from scipy.special import softmax
 
-model = AutoModelForSequenceClassification.from_pretrained(
-    "twitter-roberta-base-sentiment-latest_model")
-tokenizer = AutoTokenizer.from_pretrained(
-    "twitter-roberta-base-sentiment-latest_tokenizer")
+with open("model_config.json", "r") as f:
+    config = json.load(f)
 
-async def review_rating(input):
+model = AutoModelForSequenceClassification.from_pretrained(config.get("model_path"))
+tokenizer = AutoTokenizer.from_pretrained(config.get("tokenizer_path"))
+
+async def rate(input):
     tokens = tokenizer.encode(input, return_tensors="pt")
     result = model(tokens)
     output_np = result.logits[0].detach().cpu().numpy()
